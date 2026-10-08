@@ -18,9 +18,12 @@ export interface TeamMember {
   id: string;
   name: string;
   role: string;
+  faculty?: string;
+  belbinRole?: string;
   avatarUrl?: string;
   colorScheme: 'cyan' | 'navy' | 'amber' | 'teal';
   bio?: string;
+  avatarHue?: string;
 }
 
 export interface SmartPillar {

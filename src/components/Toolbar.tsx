@@ -16,6 +16,8 @@ import {
   Sparkles,
   FolderArchive,
   Github,
+  Mic,
+  Layers,
 } from 'lucide-react';
 
 interface ToolbarProps {
@@ -29,6 +31,9 @@ interface ToolbarProps {
   onExportJson: () => void;
   onImportJson: (data: PresentationProject) => void;
   onOpenExportModal: () => void;
+  onOpenSpeechModal: () => void;
+  isFiveSlidesMode: boolean;
+  onToggleFiveSlidesMode: () => void;
   soundEnabled: boolean;
   onToggleSound: () => void;
   waveAnimEnabled: boolean;
@@ -46,6 +51,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onExportJson,
   onImportJson,
   onOpenExportModal,
+  onOpenSpeechModal,
+  isFiveSlidesMode,
+  onToggleFiveSlidesMode,
   soundEnabled,
   onToggleSound,
   waveAnimEnabled,
@@ -111,6 +119,33 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             title="Тема: Светлая (для ярких проекторов)"
           >
             Светлая
+          </button>
+        </div>
+
+        {/* 5-Slide Defense Filter Toggle */}
+        <div className="hidden lg:flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 text-xs">
+          <button
+            onClick={isFiveSlidesMode ? undefined : onToggleFiveSlidesMode}
+            className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1.5 ${
+              isFiveSlidesMode
+                ? 'bg-cyan-950 text-cyan-300 font-bold border border-cyan-700 shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+            title="Режим 5 слайдов защиты: Введение, Наша программа, Команда, Цель, Результат"
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${isFiveSlidesMode ? 'bg-cyan-400 animate-pulse' : 'bg-slate-600'}`} />
+            <span>5 слайдов</span>
+          </button>
+          <button
+            onClick={!isFiveSlidesMode ? undefined : onToggleFiveSlidesMode}
+            className={`px-2 py-1 rounded-md transition-all ${
+              !isFiveSlidesMode
+                ? 'bg-cyan-950 text-cyan-300 font-bold border border-cyan-700 shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+            title="Показать полную колоду: все 12 слайдов"
+          >
+            Все (12)
           </button>
         </div>
 
@@ -201,6 +236,18 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
       {/* Zone 3: Primary Action - Fullscreen & Presenter Mode */}
       <div className="flex items-center gap-2">
+        {/* Speech Script Button */}
+        <button
+          onClick={onOpenSpeechModal}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/80 hover:border-cyan-400 text-xs text-cyan-200 hover:text-white font-bold transition-all shadow-md shadow-cyan-950/60 hover:scale-105 active:scale-95 group"
+          title="Открыть распределение речи всех 7 участников команды на 5 слайдов"
+        >
+          <Mic className="w-3.5 h-3.5 text-cyan-400 group-hover:animate-pulse" />
+          <span className="hidden sm:inline">Речь команды (7 чел.)</span>
+          <span className="sm:hidden">Речь</span>
+          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping inline-block" />
+        </button>
+
         <button
           onClick={onStartPresenterMode}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-cyan-950/80 border border-slate-800 hover:border-cyan-700 text-xs text-slate-200 transition-all font-medium"

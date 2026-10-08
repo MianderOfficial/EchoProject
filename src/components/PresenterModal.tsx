@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { SlideData } from '../types/presentation';
 import { SlideRenderer } from './SlideRenderer';
 import { soundEffects } from './SoundEffects';
+import { FIVE_SLIDES_SPEECH } from '../data/speechScript';
 import {
   X,
   ChevronLeft,
@@ -13,6 +14,9 @@ import {
   FileText,
   Clock,
   Sparkles,
+  Mic,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 interface PresenterModalProps {
@@ -40,6 +44,9 @@ export const PresenterModal: React.FC<PresenterModalProps> = ({
   const [laserActive, setLaserActive] = useState(false);
   const [laserPos, setLaserPos] = useState({ x: -100, y: -100 });
   const [isBlackout, setIsBlackout] = useState(false);
+  const [panelTab, setPanelTab] = useState<'speech' | 'notes'>('speech');
+  const [copiedSpeakerId, setCopiedSpeakerId] = useState<string | null>(null);
+  const [showFloatingSpeech, setShowFloatingSpeech] = useState(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -260,20 +267,143 @@ export const PresenterModal: React.FC<PresenterModalProps> = ({
               </div>
             </div>
 
-            {/* Speaker Notes */}
-            <div className="flex-1 bg-slate-900/90 rounded-xl p-4 border border-slate-800 flex flex-col overflow-hidden">
-              <div className="flex items-center gap-2 text-xs font-semibold text-cyan-300 uppercase tracking-wider mb-2">
-                <FileText className="w-4 h-4 text-cyan-400" />
-                <span>Заметки спикера:</span>
+            {/* Speaker Notes & Speech Panel */}
+            <div className="flex-1 bg-slate-900/90 rounded-xl p-3 md:p-4 border border-slate-800 flex flex-col overflow-hidden">
+              {/* Tab Selector: Speech vs Notes */}
+              <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-800">
+                <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-lg border border-slate-800">
+                  <button
+                    onClick={() => setPanelTab('speech')}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                      panelTab === 'speech'
+                        ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Mic className="w-3.5 h-3.5" />
+                    <span>Речь спикеров</span>
+                  </button>
+                  <button
+                    onClick={() => setPanelTab('notes')}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                      panelTab === 'notes'
+                        ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Заметки</span>
+                  </button>
+                </div>
+
+                {panelTab === 'speech' && (
+                  <span className="text-[10px] font-mono text-cyan-400">
+                    Слайд {currentIndex + 1} из {slides.length}
+                  </span>
+                )}
               </div>
-              <textarea
-                value={currentSlide.notes || ''}
-                onChange={(e) =>
-                  onUpdateSlide({ ...currentSlide, notes: e.target.value })
-                }
-                placeholder="Добавьте тезисы для защиты перед комиссией..."
-                className="flex-1 w-full bg-slate-950/70 text-slate-200 border border-slate-800 rounded-lg p-3 text-xs leading-relaxed resize-none focus:outline-none focus:border-cyan-500/50"
-              />
+
+              {panelTab === 'speech' ? (
+                /* Speech script for current slide */
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                  {(() => {
+                    const speechConfig = FIVE_SLIDES_SPEECH.find(
+                      (s) => s.slideIndex === currentIndex || s.slideId === currentSlide.id
+                    );
+
+                    if (!speechConfig || speechConfig.speakers.length === 0) {
+                      return (
+                        <div className="h-full flex flex-col items-center justify-center text-center p-4 text-slate-500 text-xs">
+                          <Mic className="w-8 h-8 text-slate-700 mb-2" />
+                          <span>На этом слайде нет закрепленной речи в регламенте 5 слайдов.</span>
+                          <span className="text-slate-600 text-[11px] mt-1">
+                            Основная речь распределена по первым 5 слайдам защиты.
+                          </span>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <>
+                        <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono mb-1">
+                          <span className="text-cyan-300 font-bold">{speechConfig.shortTitle}</span>
+                          <span>⏱ ~{speechConfig.estimatedTime}</span>
+                        </div>
+
+                        {speechConfig.speakers.map((sp) => {
+                          const isCopied = copiedSpeakerId === sp.memberId;
+                          return (
+                            <div
+                              key={sp.memberId}
+                              className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2 hover:border-cyan-500/30 transition-all"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <div
+                                    className={`w-7 h-7 rounded-lg bg-gradient-to-br ${sp.avatarHue} flex items-center justify-center font-display font-black text-cyan-300 text-xs shadow-sm`}
+                                  >
+                                    {sp.name
+                                      .split(' ')
+                                      .map((n) => n[0])
+                                      .join('')}
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="font-bold text-xs text-white">
+                                        {sp.name}
+                                      </span>
+                                      <span className="px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 font-mono text-[9px] font-bold border border-cyan-800">
+                                        {sp.faculty}
+                                      </span>
+                                    </div>
+                                    <div className="text-[10px] text-slate-400">
+                                      {sp.role} · {sp.belbinRole}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(sp.speechText);
+                                    setCopiedSpeakerId(sp.memberId);
+                                    setTimeout(() => setCopiedSpeakerId(null), 2000);
+                                  }}
+                                  className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-cyan-300 transition-colors"
+                                  title="Скопировать речь спикера"
+                                >
+                                  {isCopied ? (
+                                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                  ) : (
+                                    <Copy className="w-3.5 h-3.5" />
+                                  )}
+                                </button>
+                              </div>
+
+                              <div className="text-[10px] text-cyan-400/90 italic bg-cyan-950/30 px-2 py-1 rounded border border-cyan-900/40">
+                                <strong>Ремарка:</strong> {sp.cueNote}
+                              </div>
+
+                              <div className="text-xs text-slate-200 leading-relaxed font-sans bg-slate-900/70 p-2.5 rounded-lg border border-slate-800/80">
+                                {sp.speechText}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </>
+                    );
+                  })()}
+                </div>
+              ) : (
+                /* Editable Notes */
+                <textarea
+                  value={currentSlide.notes || ''}
+                  onChange={(e) =>
+                    onUpdateSlide({ ...currentSlide, notes: e.target.value })
+                  }
+                  placeholder="Добавьте тезисы для защиты перед комиссией..."
+                  className="flex-1 w-full bg-slate-950/70 text-slate-200 border border-slate-800 rounded-lg p-3 text-xs leading-relaxed resize-none focus:outline-none focus:border-cyan-500/50"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -287,7 +417,57 @@ export const PresenterModal: React.FC<PresenterModalProps> = ({
               theme={theme}
               showWaveBackground={true}
             />
+
+            {/* Floating Speech Overlay in Fullscreen */}
+            {showFloatingSpeech && (
+              <div className="absolute bottom-4 left-4 right-4 max-w-2xl mx-auto p-4 rounded-2xl bg-slate-950/95 backdrop-blur-md border border-cyan-500/50 shadow-2xl z-30 max-h-56 overflow-y-auto animate-in fade-in duration-200">
+                <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Mic className="w-4 h-4 text-cyan-400 animate-pulse" />
+                    <span className="font-display font-bold text-xs text-white">
+                      Подсказка спикера · Слайд {currentIndex + 1}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setShowFloatingSpeech(false)}
+                    className="p-1 rounded text-slate-400 hover:text-white"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                {(() => {
+                  const speechConfig = FIVE_SLIDES_SPEECH.find(
+                    (s) => s.slideIndex === currentIndex || s.slideId === currentSlide.id
+                  );
+                  if (!speechConfig) {
+                    return <p className="text-xs text-slate-400">{currentSlide.notes || 'Нет заметок'}</p>;
+                  }
+                  return (
+                    <div className="space-y-2">
+                      {speechConfig.speakers.map((sp) => (
+                        <div key={sp.memberId} className="text-xs text-slate-200">
+                          <strong className="text-cyan-300">
+                            {sp.name} ({sp.faculty}):
+                          </strong>{' '}
+                          {sp.speechText}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
           </div>
+
+          {/* Toggle speech hint button in Fullscreen mode */}
+          <button
+            onClick={() => setShowFloatingSpeech(!showFloatingSpeech)}
+            className="absolute bottom-6 right-6 px-3 py-1.5 rounded-full bg-slate-900/90 hover:bg-cyan-950 text-cyan-300 border border-slate-700 hover:border-cyan-500 text-xs font-medium flex items-center gap-1.5 transition-all shadow-lg z-20"
+            title="Показать / скрыть подсказку речи спикера"
+          >
+            <Mic className="w-3.5 h-3.5" />
+            <span>{showFloatingSpeech ? 'Скрыть речь' : 'Подсказка речи'}</span>
+          </button>
 
           {/* Floating Next/Prev arrows on hover */}
           <button

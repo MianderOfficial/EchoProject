@@ -7,7 +7,9 @@ import { SlideRenderer } from './components/SlideRenderer';
 import { PresenterModal } from './components/PresenterModal';
 import { PrintView } from './components/PrintView';
 import { ExportModal } from './components/ExportModal';
+import { SpeechScriptModal } from './components/SpeechScriptModal';
 import { soundEffects } from './components/SoundEffects';
+import { FIVE_SLIDES_SPEECH } from './data/speechScript';
 import {
   ChevronLeft,
   ChevronRight,
@@ -19,9 +21,10 @@ import {
   HelpCircle,
   X,
   RotateCcw,
+  Mic,
 } from 'lucide-react';
 
-const STORAGE_KEY = 'echo_presentation_project_v1';
+const STORAGE_KEY = 'echo_presentation_project_v2';
 
 export default function App() {
   // Load saved project or fall back to default template
@@ -30,19 +33,29 @@ export default function App() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.slides && Array.isArray(parsed.slides) && parsed.slides.length > 0) {
-          // If previous cache had 6 members, migrate to 7
+        if (parsed.slides && Array.isArray(parsed.slides) && parsed.slides.length >= 3) {
+          // Ensure team slide has the exact 7 team members
           const teamSlide = parsed.slides.find((s: any) => s.type === 'team');
-          if (teamSlide && teamSlide.payload?.members?.length === 6) {
-            teamSlide.payload.members.push({
-              id: 'm7',
-              name: 'Никита Смирнов',
-              role: 'Координатор внедрения',
-              colorScheme: 'teal',
-              bio: 'Логистика комплектующих, монтаж и регламент эксплуатации',
-              avatarHue: 'from-teal-600 to-emerald-900',
-            });
-            teamSlide.payload.layoutMode = 'lead-and-six';
+          const defaultTeamSlide = initialProject.slides.find((s) => s.type === 'team');
+          if (teamSlide && defaultTeamSlide) {
+            const currentMembers = teamSlide.payload?.members || [];
+            if (
+              currentMembers.length !== 7 ||
+              currentMembers[0]?.name !== 'Даниил Кузнецов' ||
+              currentMembers[3]?.faculty !== 'ФГО' ||
+              currentMembers[6]?.faculty !== 'АВТФ'
+            ) {
+              const freshMembers = JSON.parse(JSON.stringify(defaultTeamSlide.payload.members));
+              currentMembers.forEach((oldM: any, idx: number) => {
+                if (oldM?.photo && freshMembers[idx]) {
+                  freshMembers[idx].photo = oldM.photo;
+                }
+              });
+              teamSlide.payload = {
+                ...defaultTeamSlide.payload,
+                members: freshMembers,
+              };
+            }
           }
           return parsed;
         }
@@ -60,6 +73,21 @@ export default function App() {
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
+  const [showSpeechModal, setShowSpeechModal] = useState(false);
+  const [isFiveSlidesMode, setIsFiveSlidesMode] = useState(false);
+
+  // Active slides based on 5-slide mode filter
+  const activeSlides = isFiveSlidesMode ? project.slides.slice(0, 5) : project.slides;
+
+  const handleToggleFiveSlidesMode = () => {
+    setIsFiveSlidesMode((prev) => {
+      const next = !prev;
+      if (next && currentSlideIndex >= 5) {
+        setCurrentSlideIndex(0);
+      }
+      return next;
+    });
+  };
 
   // Sync sound setting
   useEffect(() => {
@@ -72,6 +100,35 @@ export default function App() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(project));
     } catch {}
   }, [project]);
+
+  const triggerEchoPulse = (x?: number, y?: number) => {
+    window.dispatchEvent(
+      new CustomEvent('echo-pulse', {
+        detail: {
+          x: x ?? (typeof window !== 'undefined' ? window.innerWidth * 0.5 : 500),
+          y: y ?? (typeof window !== 'undefined' ? window.innerHeight * 0.45 : 350),
+        },
+      })
+    );
+  };
+
+  const handleNextSlide = useCallback(() => {
+    if (currentSlideIndex < activeSlides.length - 1) {
+      const nextIdx = currentSlideIndex + 1;
+      setCurrentSlideIndex(nextIdx);
+      soundEffects.playSlideChime(nextIdx);
+      triggerEchoPulse();
+    }
+  }, [currentSlideIndex, activeSlides.length]);
+
+  const handlePrevSlide = useCallback(() => {
+    if (currentSlideIndex > 0) {
+      const prevIdx = currentSlideIndex - 1;
+      setCurrentSlideIndex(prevIdx);
+      soundEffects.playSlideChime(prevIdx);
+      triggerEchoPulse();
+    }
+  }, [currentSlideIndex]);
 
   // Keyboard navigation for main view
   useEffect(() => {
@@ -97,41 +154,15 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentSlideIndex, project.slides.length]);
-
-  const triggerEchoPulse = (x?: number, y?: number) => {
-    window.dispatchEvent(
-      new CustomEvent('echo-pulse', {
-        detail: {
-          x: x ?? (typeof window !== 'undefined' ? window.innerWidth * 0.5 : 500),
-          y: y ?? (typeof window !== 'undefined' ? window.innerHeight * 0.45 : 350),
-        },
-      })
-    );
-  };
-
-  const handleNextSlide = useCallback(() => {
-    if (currentSlideIndex < project.slides.length - 1) {
-      const nextIdx = currentSlideIndex + 1;
-      setCurrentSlideIndex(nextIdx);
-      soundEffects.playSlideChime(nextIdx);
-      triggerEchoPulse();
-    }
-  }, [currentSlideIndex, project.slides.length]);
-
-  const handlePrevSlide = useCallback(() => {
-    if (currentSlideIndex > 0) {
-      const prevIdx = currentSlideIndex - 1;
-      setCurrentSlideIndex(prevIdx);
-      soundEffects.playSlideChime(prevIdx);
-      triggerEchoPulse();
-    }
-  }, [currentSlideIndex]);
+  }, [currentSlideIndex, activeSlides.length, handleNextSlide, handlePrevSlide]);
 
   const handleUpdateCurrentSlide = (updatedSlide: SlideData) => {
-    const nextSlides = [...project.slides];
-    nextSlides[currentSlideIndex] = updatedSlide;
-    setProject({ ...project, slides: nextSlides });
+    const slideIdxInProject = project.slides.findIndex((s) => s.id === updatedSlide.id);
+    if (slideIdxInProject !== -1) {
+      const nextSlides = [...project.slides];
+      nextSlides[slideIdxInProject] = updatedSlide;
+      setProject({ ...project, slides: nextSlides });
+    }
   };
 
   const handleThemeChange = (newTheme: ThemeMode) => {
@@ -220,7 +251,7 @@ export default function App() {
     setShowAddModal(false);
   };
 
-  const currentSlide = project.slides[currentSlideIndex] || project.slides[0];
+  const currentSlide = activeSlides[currentSlideIndex] || activeSlides[0] || project.slides[0];
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between overflow-x-hidden">
@@ -242,6 +273,9 @@ export default function App() {
         onExportJson={handleExportJson}
         onImportJson={handleImportJson}
         onOpenExportModal={() => setShowExportModal(true)}
+        onOpenSpeechModal={() => setShowSpeechModal(true)}
+        isFiveSlidesMode={isFiveSlidesMode}
+        onToggleFiveSlidesMode={handleToggleFiveSlidesMode}
         soundEnabled={soundEnabled}
         onToggleSound={() => setSoundEnabled(!soundEnabled)}
         waveAnimEnabled={waveAnimEnabled}
@@ -255,8 +289,13 @@ export default function App() {
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
             <span className="font-mono text-cyan-300">
-              Слайд {currentSlideIndex + 1} / {project.slides.length}
+              Слайд {currentSlideIndex + 1} / {activeSlides.length}
             </span>
+            {isFiveSlidesMode && (
+              <span className="px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-800">
+                Защита: 5 слайдов
+              </span>
+            )}
             <span className="text-slate-600">·</span>
             <span className="text-slate-400 hidden sm:inline">
               Кликните по фону для эхо-волны или по тексту для правки
@@ -264,6 +303,15 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowSpeechModal(true)}
+              className="px-2.5 py-1 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-600/80 text-cyan-200 hover:text-white flex items-center gap-1.5 transition-all text-xs font-medium hover:scale-105 active:scale-95 shadow-sm"
+              title="Открыть шпаргалку с речью всех 7 участников команды"
+            >
+              <Mic className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+              <span>Речь команды</span>
+            </button>
+
             <button
               onClick={() => {
                 triggerEchoPulse();
@@ -303,7 +351,7 @@ export default function App() {
             slide={currentSlide}
             onUpdateSlide={handleUpdateCurrentSlide}
             onNavigateToSlide={(id) => {
-              const idx = project.slides.findIndex((s) => s.id === id);
+              const idx = activeSlides.findIndex((s) => s.id === id);
               if (idx !== -1) setCurrentSlideIndex(idx);
             }}
             theme={project.theme}
@@ -326,9 +374,9 @@ export default function App() {
 
           <button
             onClick={handleNextSlide}
-            disabled={currentSlideIndex === project.slides.length - 1}
+            disabled={currentSlideIndex === activeSlides.length - 1}
             className={`no-print absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-slate-950/80 hover:bg-cyan-950 text-white border border-slate-800 hover:border-cyan-500/50 shadow-lg transition-all duration-200 z-20 ${
-              currentSlideIndex === project.slides.length - 1
+              currentSlideIndex === activeSlides.length - 1
                 ? 'opacity-0 pointer-events-none'
                 : 'opacity-0 group-hover:opacity-100 hover:scale-110'
             }`}
@@ -337,11 +385,53 @@ export default function App() {
             <ChevronRight className="w-5 h-5 text-cyan-400" />
           </button>
         </div>
+
+        {/* Active Slide Speaker Speech Bar */}
+        {(() => {
+          const speechConfig = FIVE_SLIDES_SPEECH.find(
+            (s) => s.slideIndex === currentSlideIndex || s.slideId === currentSlide?.id
+          );
+          if (!speechConfig || speechConfig.speakers.length === 0) return null;
+
+          return (
+            <div className="no-print w-full max-w-6xl mt-3 p-2.5 sm:px-4 rounded-xl bg-slate-900/95 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-lg">
+              <div className="flex items-center gap-2.5 overflow-x-auto scrollbar-none">
+                <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono text-[10px] font-bold border border-cyan-800 shrink-0 flex items-center gap-1">
+                  <Mic className="w-3 h-3 text-cyan-400" />
+                  <span>СПИКЕРЫ НА СЛАЙДЕ:</span>
+                </span>
+                <div className="flex items-center gap-2">
+                  {speechConfig.speakers.map((sp) => (
+                    <div
+                      key={sp.memberId}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-xs shrink-0"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                      <strong className="text-white text-xs">{sp.name}</strong>
+                      <span className="text-[10px] text-cyan-300 font-mono font-bold">
+                        {sp.faculty}
+                      </span>
+                      <span className="text-slate-500 text-[10px]">· ~{sp.durationSec}с</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowSpeechModal(true)}
+                className="self-end sm:self-center px-3 py-1 rounded-lg bg-cyan-950 hover:bg-cyan-900 text-cyan-300 text-xs font-semibold border border-cyan-600/60 hover:border-cyan-400 transition-colors flex items-center gap-1.5 shrink-0 shadow-sm"
+              >
+                <span>Открыть реплики</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          );
+        })()}
       </main>
 
       {/* Bottom Thumbnails Strip */}
       <ThumbnailStrip
-        slides={project.slides}
+        slides={activeSlides}
         currentIndex={currentSlideIndex}
         onSelectSlide={(idx) => {
           setCurrentSlideIndex(idx);
@@ -357,7 +447,7 @@ export default function App() {
       {/* Fullscreen & Presenter Mode Modal */}
       {isPresentationOpen && (
         <PresenterModal
-          slides={project.slides}
+          slides={activeSlides}
           currentIndex={currentSlideIndex}
           onSelectSlide={setCurrentSlideIndex}
           onClose={() => setIsPresentationOpen(false)}
@@ -366,6 +456,18 @@ export default function App() {
           theme={project.theme}
         />
       )}
+
+      {/* Speech Script Modal */}
+      <SpeechScriptModal
+        isOpen={showSpeechModal}
+        onClose={() => setShowSpeechModal(false)}
+        activeSlideIndex={currentSlideIndex}
+        onSelectSlide={(idx) => {
+          if (idx < activeSlides.length) {
+            setCurrentSlideIndex(idx);
+          }
+        }}
+      />
 
       {/* Add Slide Type Selector Modal */}
       {showAddModal && (
@@ -532,7 +634,7 @@ export default function App() {
       )}
 
       {/* Hidden Print View (rendered only when user prints / saves as PDF) */}
-      <PrintView slides={project.slides} theme={project.theme} />
+      <PrintView slides={activeSlides} theme={project.theme} />
     </div>
   );
 }

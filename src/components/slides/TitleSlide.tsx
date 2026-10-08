@@ -128,10 +128,10 @@ export const TitleSlide: React.FC<SlideProps> = ({ slide, onUpdate, theme }) => 
           </svg>
         </div>
 
-        {/* Central Graphic Composition: Overlapping Echo Harmonic Spheres */}
-        <div className="relative z-10 flex flex-col items-center text-center max-w-sm">
-          <div className="relative mb-6">
-            <div className="w-48 h-48 sm:w-56 sm:h-56 relative flex items-center justify-center">
+        {/* Central Graphic Composition: Overlapping Echo Harmonic Spheres & Bot Preview */}
+        <div className="relative z-10 flex flex-col items-center text-center max-w-sm w-full">
+          <div className="relative mb-5">
+            <div className="w-40 h-40 sm:w-48 sm:h-48 relative flex items-center justify-center">
               {/* Pulsing acoustic rings */}
               <div className="absolute inset-0 rounded-full border border-cyan-400/30 animate-pulse-glow" />
               <div className="absolute -inset-4 rounded-full border border-cyan-500/15" />
@@ -139,28 +139,54 @@ export const TitleSlide: React.FC<SlideProps> = ({ slide, onUpdate, theme }) => 
 
               {/* Iconic Echo Venn composition */}
               <div className="relative flex items-center justify-center drop-shadow-2xl">
-                <EchoLogo size={130} />
+                <EchoLogo size={110} />
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-900/80 backdrop-blur-md border border-cyan-500/30 rounded-xl px-5 py-3 shadow-xl">
-            <div className="text-cyan-300 font-display text-xs font-bold uppercase tracking-wider mb-1 flex items-center justify-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Изображение / Концепция идеи</span>
+          {/* Telegram Bot Live Card Mockup */}
+          <div className="w-full bg-slate-900/90 backdrop-blur-md border border-cyan-500/40 rounded-2xl p-4 shadow-2xl text-left relative overflow-hidden">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-sky-500 flex items-center justify-center text-white text-[11px] font-bold">
+                  ✈
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white leading-none">@EchoCampus_bot</div>
+                  <div className="text-[10px] text-cyan-400 font-mono">Telegram-бот инициатив</div>
+                </div>
+              </div>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-700 text-emerald-300 text-[9px] font-mono font-semibold">
+                ● ОНЛАЙН
+              </span>
             </div>
-            <p className="text-xs text-slate-300 leading-snug">
-              Абстрактная гармония звуковых волн, естественного света и модульной архитектуры
-            </p>
+
+            {/* Initiative card bubble */}
+            <div className="bg-slate-950/80 rounded-xl p-2.5 border border-slate-800 text-xs mb-2">
+              <div className="text-[10px] text-slate-400 font-mono mb-1">Инициатива студентов #142:</div>
+              <div className="text-white text-[11px] font-medium leading-snug">
+                «Оборудовать розетками и тихими зонами читальный зал 4-го корпуса»
+              </div>
+            </div>
+
+            {/* Voting & Status */}
+            <div className="flex items-center justify-between text-[10px] font-mono">
+              <span className="text-cyan-300 font-bold bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800">
+                👍 184 голоса ЗА
+              </span>
+              <span className="text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800">
+                🏛️ В плане работ
+              </span>
+            </div>
           </div>
 
           {/* Quick interactive acoustic pill */}
-          <div className="mt-4 flex items-center gap-2 text-[11px] text-cyan-400/80 font-mono">
-            <span>● 5 ключевых разделов</span>
+          <div className="mt-3 flex items-center gap-2 text-[11px] text-cyan-400/80 font-mono">
+            <span>● Сбор идей</span>
             <span>·</span>
-            <span>SMART-цель</span>
+            <span>Студ. вотум</span>
             <span>·</span>
-            <span>Соц. эффект</span>
+            <span>Мост в деканат</span>
           </div>
         </div>
       </div>
