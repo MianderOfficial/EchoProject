@@ -60,11 +60,11 @@ export const IdeaWorkflowSlide: React.FC<IdeaWorkflowSlideProps> = ({
 
       {/* Tri-Split Layout (mirrors Page 9 of PDF: Cyan Wing / Dark Center Spine / Amber Wing) */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 my-auto z-10 items-stretch">
-        {/* Left Wing: Cyan Acoustic Block */}
+        {/* Left Wing: Cyan Acoustic Block (Student & Poll Channel) */}
         <div className="hidden md:flex md:col-span-3 rounded-2xl p-5 bg-gradient-to-br from-[#0F4C81]/80 to-[#1A7C9B]/70 border border-cyan-400/40 flex-col justify-between shadow-lg relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-400 text-slate-950 uppercase">
-              Стадия: Замеры
+            <span className="text-[11px] font-mono font-bold text-cyan-200 uppercase">
+              Фаза 1: Студенты
             </span>
           </div>
 
@@ -73,19 +73,19 @@ export const IdeaWorkflowSlide: React.FC<IdeaWorkflowSlideProps> = ({
               <span className="font-display font-black text-white text-lg">01-02</span>
             </div>
             <div className="text-xs font-bold text-white uppercase tracking-wider mb-1">
-              Инженерная фаза
+              Бот и Канал опросов
             </div>
             <p className="text-[11px] text-cyan-100/90 leading-tight">
-              Точные расчеты и лазерные замеры аудиторий
+              Подача инициативы в боте VK / MAX и открытое голосование студентов в канале «ЭхоМост»
             </p>
           </div>
 
           <div className="text-center text-[10px] font-mono text-cyan-200">
-            [Изображение идеи / Чертеж]
+            Отсев единичных капризов
           </div>
         </div>
 
-        {/* Central Spine: 4 Steps (The Core Column from Page 9) */}
+        {/* Central Spine: 4 Steps (The Core Column) */}
         <div className="md:col-span-6 rounded-2xl p-5 bg-slate-900/90 border border-cyan-500/30 flex flex-col justify-between shadow-2xl space-y-3">
           {steps.map((st: any, idx: number) => (
             <div
@@ -117,11 +117,11 @@ export const IdeaWorkflowSlide: React.FC<IdeaWorkflowSlideProps> = ({
           ))}
         </div>
 
-        {/* Right Wing: Amber Harmonic Block */}
+        {/* Right Wing: Amber Harmonic Block (Dean's Office) */}
         <div className="hidden md:flex md:col-span-3 rounded-2xl p-5 bg-gradient-to-br from-amber-600/80 to-amber-800/80 border border-amber-400/40 flex-col justify-between shadow-lg relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-300 text-slate-950 uppercase">
-              Стадия: Монтаж
+            <span className="text-[11px] font-mono font-bold text-amber-200 uppercase">
+              Фаза 2: Деканат
             </span>
           </div>
 
@@ -130,15 +130,15 @@ export const IdeaWorkflowSlide: React.FC<IdeaWorkflowSlideProps> = ({
               <span className="font-display font-black text-white text-lg">03-04</span>
             </div>
             <div className="text-xs font-bold text-white uppercase tracking-wider mb-1">
-              Фаза внедрения
+              Решение и отчет
             </div>
             <p className="text-[11px] text-amber-100 leading-tight">
-              Сборка, установка и проверка в аудитории
+              Передача верифицированных опросом идей в деканат и публикация официального ответа в канале
             </p>
           </div>
 
           <div className="text-center text-[10px] font-mono text-amber-200">
-            [Изображение идеи / Прототип]
+            Прозрачный статус в VK и MAX
           </div>
         </div>
       </div>

@@ -617,7 +617,7 @@ export const TeamSlide: React.FC<TeamSlideProps> = ({ slide, onUpdate, theme }) 
                     Роли Белбина: <span className="font-semibold">Рабочая пчёлка (РП: 10) · Руководитель (РК: 10)</span>
                   </div>
                   <p className="text-[11px] text-slate-400 mt-0.5">
-                    Исполнитель бэкенда: написание Telegram-бота на Python/Aiogram и проектирование архитектуры БД.
+                    Исполнитель бэкенда: написание бота для VK и мессенджера MAX на Python (vkbottle / MAX Bot API) и автопубликации опросов в канале.
                   </p>
                 </div>
               </div>
@@ -635,7 +635,7 @@ export const TeamSlide: React.FC<TeamSlideProps> = ({ slide, onUpdate, theme }) 
                     Роли Белбина: <span className="font-semibold">Руководитель / Председатель (РК: 30) · Аналитик (АН: 11)</span>
                   </div>
                   <p className="text-[11px] text-slate-400 mt-0.5">
-                    Стратегический координатор: контроль соблюдения регламентов, дедлайнов и структуры проекта.
+                    Стратегический координатор: контроль соблюдения регламентов, модерация опросов и связь с деканатом.
                   </p>
                 </div>
               </div>
@@ -653,7 +653,7 @@ export const TeamSlide: React.FC<TeamSlideProps> = ({ slide, onUpdate, theme }) 
                     Роли Белбина: <span className="font-semibold">Мыслитель / Генератор идей (14) · Председатель (13)</span>
                   </div>
                   <p className="text-[11px] text-slate-400 mt-0.5">
-                    Генерация архитектурных концепций, проектирование эргономики UI/UX Telegram WebApp.
+                    Генерация архитектурных концепций, проектирование эргономики UI/UX в VK Mini Apps и мессенджере MAX.
                   </p>
                 </div>
               </div>

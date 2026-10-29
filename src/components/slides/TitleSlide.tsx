@@ -144,47 +144,63 @@ export const TitleSlide: React.FC<SlideProps> = ({ slide, onUpdate, theme }) => 
             </div>
           </div>
 
-          {/* Telegram Bot Live Card Mockup */}
+          {/* VK & MAX Poll Channel Live Card Mockup */}
           <div className="w-full bg-slate-900/90 backdrop-blur-md border border-cyan-500/40 rounded-2xl p-4 shadow-2xl text-left relative overflow-hidden">
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-sky-500 flex items-center justify-center text-white text-[11px] font-bold">
-                  ✈
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center text-white text-[10px] font-black tracking-tighter">
+                  VK·M
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-white leading-none">@EchoCampus_bot</div>
-                  <div className="text-[10px] text-cyan-400 font-mono">Telegram-бот инициатив</div>
+                  <div className="text-xs font-bold text-white leading-none">
+                    Канал и бот «ЭхоМост»
+                  </div>
+                  <div className="text-[10px] text-cyan-400 font-mono">
+                    Платформа в VK и мессенджере MAX
+                  </div>
                 </div>
               </div>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-700 text-emerald-300 text-[9px] font-mono font-semibold">
-                ● ОНЛАЙН
+              <span className="text-emerald-300 text-[10px] font-mono font-semibold">
+                ОПРОС АКТИВЕН
               </span>
             </div>
 
-            {/* Initiative card bubble */}
+            {/* Initiative + Poll card bubble */}
             <div className="bg-slate-950/80 rounded-xl p-2.5 border border-slate-800 text-xs mb-2">
-              <div className="text-[10px] text-slate-400 font-mono mb-1">Инициатива студентов #142:</div>
-              <div className="text-white text-[11px] font-medium leading-snug">
-                «Оборудовать розетками и тихими зонами читальный зал 4-го корпуса»
+              <div className="text-[10px] text-slate-400 font-mono mb-1">
+                Опрос в канале «ЭхоМост» #142 (АВТФ / ФПМИ):
+              </div>
+              <div className="text-white text-[11px] font-medium leading-snug mb-2">
+                «Оборудовать розетками и удлинителями лекционные аудитории 4-го корпуса»
+              </div>
+              {/* Poll progress bar */}
+              <div className="space-y-1 text-[10px] font-mono">
+                <div className="flex items-center justify-between text-cyan-300">
+                  <span>За передачу в деканат</span>
+                  <span className="tabular-nums font-bold">88% (164 голоса)</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                  <div className="h-full w-[88%] bg-cyan-400 rounded-full" />
+                </div>
               </div>
             </div>
 
             {/* Voting & Status */}
             <div className="flex items-center justify-between text-[10px] font-mono">
-              <span className="text-cyan-300 font-bold bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800">
-                👍 184 голоса ЗА
+              <span className="text-cyan-300 font-bold">
+                Кворум: 164 / 50 голосов
               </span>
-              <span className="text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800">
-                🏛️ В плане работ
+              <span className="text-emerald-400 font-bold">
+                Передано в деканат
               </span>
             </div>
           </div>
 
-          {/* Quick interactive acoustic pill */}
+          {/* Quick interactive acoustic line */}
           <div className="mt-3 flex items-center gap-2 text-[11px] text-cyan-400/80 font-mono">
-            <span>● Сбор идей</span>
+            <span>Бот VK/MAX</span>
             <span>·</span>
-            <span>Студ. вотум</span>
+            <span>Опрос в канале</span>
             <span>·</span>
             <span>Мост в деканат</span>
           </div>

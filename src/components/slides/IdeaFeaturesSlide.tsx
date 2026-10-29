@@ -71,27 +71,27 @@ export const IdeaFeaturesSlide: React.FC<IdeaFeaturesSlideProps> = ({
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="px-2.5 py-1 rounded bg-amber-400/90 text-slate-950 text-xs font-mono font-bold uppercase tracking-wider">
-              Визуализация решения
+            <span className="text-amber-300 text-xs font-mono font-bold uppercase tracking-wider">
+              Экосистема VK & MAX
             </span>
             <EchoLogo size={28} />
           </div>
 
           <div className="my-auto py-8 text-center flex flex-col items-center">
             <div className="w-16 h-16 rounded-2xl bg-slate-950/80 border border-cyan-400/50 flex items-center justify-center mb-3 shadow-xl group-hover:scale-110 transition-transform">
-              <Sparkles className="w-8 h-8 text-cyan-300 animate-pulse" />
+              <Sparkles className="w-8 h-8 text-cyan-300" />
             </div>
             <div className="font-display font-black text-xl text-white mb-1">
-              Эргономика и эстетика
+              Бот + Канал опросов
             </div>
             <p className="text-xs text-slate-300 max-w-xs leading-relaxed">
-              Модульная конструкция, гармонично вписывающаяся в интерьер аудиторий вуза
+              Единая связка чат-бота и публичного канала голосования в VK и мессенджере MAX для фильтрации идей перед передачей в деканат
             </p>
           </div>
 
           <div className="bg-slate-950/70 backdrop-blur-sm rounded-xl p-3 border border-slate-800 text-center">
             <span className="text-[11px] font-mono text-cyan-300">
-              ● Прототип 1.0 проверен в учебных залах
+              Стек: Python (vkbottle + MAX Bot API) · React Mini Apps
             </span>
           </div>
         </div>

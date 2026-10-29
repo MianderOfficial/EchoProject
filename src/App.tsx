@@ -24,41 +24,36 @@ import {
   Mic,
 } from 'lucide-react';
 
-const STORAGE_KEY = 'echo_presentation_project_v2';
+const STORAGE_KEY = 'echo_presentation_project_v3';
+const LEGACY_STORAGE_KEY = 'echo_presentation_project_v2';
 
 export default function App() {
-  // Load saved project or fall back to default template
+  // Load saved project or fall back to default template (preserving uploaded team photos from v2)
   const [project, setProject] = useState<PresentationProject>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.slides && Array.isArray(parsed.slides) && parsed.slides.length >= 3) {
-          // Ensure team slide has the exact 7 team members
-          const teamSlide = parsed.slides.find((s: any) => s.type === 'team');
-          const defaultTeamSlide = initialProject.slides.find((s) => s.type === 'team');
-          if (teamSlide && defaultTeamSlide) {
-            const currentMembers = teamSlide.payload?.members || [];
-            if (
-              currentMembers.length !== 7 ||
-              currentMembers[0]?.name !== 'Даниил Кузнецов' ||
-              currentMembers[3]?.faculty !== 'ФГО' ||
-              currentMembers[6]?.faculty !== 'АВТФ'
-            ) {
-              const freshMembers = JSON.parse(JSON.stringify(defaultTeamSlide.payload.members));
-              currentMembers.forEach((oldM: any, idx: number) => {
-                if (oldM?.photo && freshMembers[idx]) {
-                  freshMembers[idx].photo = oldM.photo;
-                }
-              });
-              teamSlide.payload = {
-                ...defaultTeamSlide.payload,
-                members: freshMembers,
-              };
-            }
-          }
           return parsed;
         }
+      }
+
+      // Migrate uploaded member photos from v2 if present
+      const legacySaved = localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (legacySaved) {
+        const legacyParsed = JSON.parse(legacySaved);
+        const legacyTeam = legacyParsed?.slides?.find((s: any) => s.type === 'team');
+        const freshProject: PresentationProject = JSON.parse(JSON.stringify(initialProject));
+        const freshTeam = freshProject.slides.find((s) => s.type === 'team');
+        if (legacyTeam?.payload?.members && freshTeam?.payload?.members) {
+          legacyTeam.payload.members.forEach((oldM: any, idx: number) => {
+            if (oldM?.photo && freshTeam.payload.members[idx]) {
+              freshTeam.payload.members[idx].photo = oldM.photo;
+            }
+          });
+        }
+        return freshProject;
       }
     } catch {}
     return initialProject;
@@ -76,13 +71,13 @@ export default function App() {
   const [showSpeechModal, setShowSpeechModal] = useState(false);
   const [isFiveSlidesMode, setIsFiveSlidesMode] = useState(false);
 
-  // Active slides based on 5-slide mode filter
-  const activeSlides = isFiveSlidesMode ? project.slides.slice(0, 5) : project.slides;
+  // Active slides based on intensive defense mode filter (first 7 slides cover all intensive tasks)
+  const activeSlides = isFiveSlidesMode ? project.slides.slice(0, 7) : project.slides;
 
   const handleToggleFiveSlidesMode = () => {
     setIsFiveSlidesMode((prev) => {
       const next = !prev;
-      if (next && currentSlideIndex >= 5) {
+      if (next && currentSlideIndex >= 7) {
         setCurrentSlideIndex(0);
       }
       return next;
@@ -497,15 +492,16 @@ export default function App() {
                 { type: 'title', label: 'Титульный слайд', desc: 'Название и брендинг' },
                 { type: 'agenda', label: 'Содержание', desc: 'Волновой маршрут' },
                 { type: 'team', label: 'Команда проекта', desc: 'Карточки участников' },
+                { type: 'problem-hypothesis', label: 'Проблема и Гипотеза', desc: 'Интервью + фильтр опросов' },
+                { type: 'audience', label: 'Метод Персон и Опрос', desc: 'Персоны + метрики ЦА' },
+                { type: 'analogs', label: 'Анализ рынка', desc: 'Конкуренты и ниша' },
                 { type: 'smart-goal', label: 'Цель SMART', desc: '5 волновых арок' },
-                { type: 'audience', label: 'Аудитория', desc: 'Статистика и сегменты' },
-                { type: 'analogs', label: 'Аналоги', desc: 'Бенчмаркинг' },
-                { type: 'idea-collage', label: 'Концепт-коллаж', desc: '4 визуал-квадранта' },
+                { type: 'idea-collage', label: 'Архитектура VK/MAX', desc: '4 модуля системы' },
                 { type: 'idea-features', label: 'Преимущества', desc: '4 свойства + макет' },
-                { type: 'idea-workflow', label: 'Сценарий', desc: '3-колоночный трек' },
+                { type: 'idea-workflow', label: 'Сценарий', desc: 'Воронка опросов' },
                 { type: 'social-impact', label: 'Соц. эффект', desc: '4 крупных метрики' },
                 { type: 'roadmap', label: 'План внедрения', desc: '4 этапа и спринты' },
-                { type: 'final', label: 'Финал & Q&A', desc: 'Контакты и спасибо' },
+                { type: 'final', label: 'Финал & Q&A', desc: 'Контакты в VK и MAX' },
               ].map((item) => (
                 <button
                   key={item.type}

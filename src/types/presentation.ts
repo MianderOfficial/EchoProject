@@ -4,6 +4,7 @@ export type SlideType =
   | 'title'
   | 'agenda'
   | 'team'
+  | 'problem-hypothesis'
   | 'smart-goal'
   | 'audience'
   | 'analogs'

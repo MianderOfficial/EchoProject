@@ -3,6 +3,7 @@ import { SlideData } from '../types/presentation';
 import { TitleSlide } from './slides/TitleSlide';
 import { AgendaSlide } from './slides/AgendaSlide';
 import { TeamSlide } from './slides/TeamSlide';
+import { ProblemHypothesisSlide } from './slides/ProblemHypothesisSlide';
 import { SmartGoalSlide } from './slides/SmartGoalSlide';
 import { AudienceSlide } from './slides/AudienceSlide';
 import { AnalogsSlide } from './slides/AnalogsSlide';
@@ -44,6 +45,8 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
         );
       case 'team':
         return <TeamSlide slide={slide} onUpdate={onUpdateSlide} theme={theme} />;
+      case 'problem-hypothesis':
+        return <ProblemHypothesisSlide slide={slide} onUpdate={onUpdateSlide} theme={theme} />;
       case 'smart-goal':
         return <SmartGoalSlide slide={slide} onUpdate={onUpdateSlide} theme={theme} />;
       case 'audience':
